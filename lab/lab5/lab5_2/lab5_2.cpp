@@ -47,7 +47,7 @@ private:
 public:
     MagicArm(string t, float p, float m, Type ty, Id i, float ep)
         : Arm(t, p, m, ty, i), extraPower(ep) {};
-    MagicArm() : MagicArm("EXCALIBUR", 25.7, 237, Type::BOW, Id::B, 25) {};
+    MagicArm() : MagicArm("Greatbow", 25.7, 237, Type::BOW, Id::B, 25) {};
     float getExtraPower();
     float getPower();
     void hit() override;
