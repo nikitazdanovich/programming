@@ -1,174 +1,156 @@
 #include <iostream>
 
 using namespace std;
-enum class weaponType {
-	ONEHANDED,
-	TWOHANDED,
-	BOW,
-	CROSSBOW,
-	NON
-};
-enum class weaponIdc {
-	a,
-	b
+
+enum class Type {
+    ONEHANDED,
+    TWOHANDED,
+    BOW,
+    CROSSBOW,
+    NONE
 };
 
-class weapon {
+enum class Id {
+    A,
+    B
+};
+
+class Arm {
 private:
-	weaponType type;
-	weaponIdc idc;
-	string name;
-	float damage, weight;
+    Type typ;
+    Id id;
+    string title;
+    float power, mass;
 public:
-	weapon(string tnam = "NON", float tdam = 0, float twei = 0, weaponType ttyp = weaponType::NON, weaponIdc tidc = weaponIdc::a) {
-		this->name = tnam;
-		this->damage = tdam;
-		this->weight = twei;
-		switch (ttyp) {
-		case weaponType::ONEHANDED:
-			this->type = weaponType::ONEHANDED; break;
-		case weaponType::TWOHANDED:
-			this->type = weaponType::TWOHANDED; break;
-		case weaponType::BOW:
-			this->type = weaponType::BOW; break;
-		case weaponType::CROSSBOW:
-			this->type = weaponType::CROSSBOW; break;
-		default:
-			this->type = weaponType::NON; break;
-		}
-		switch (tidc) {
-		case weaponIdc::a:
-			this->idc = weaponIdc::a; break;
-		case weaponIdc::b:
-			this->idc = weaponIdc::b; break;
-		}
-		cout << "\nTHE WEAPON HAS DESCENDED;\n";
-	}
+    Arm(string t = "NONE", float p = 0, float m = 0, Type ty = Type::NONE, Id i = Id::A) {
+        this->title = t;
+        this->power = p;
+        this->mass = m;
+        this->typ = ty;
+        this->id = i;
+        cout << "\nWEAPON CREATED;\n";
+    }
 
-	~weapon();
-	string getName();
-	float getWeight();
-	virtual float getDamage();
-	weaponType getType();
-	weaponIdc getIdc();
+    ~Arm();
+    string getTitle();
+    float getMass();
+    virtual float getPower();
+    Type getTyp();
+    Id getId();
 
-
-	virtual void attack() = 0;
+    virtual void hit() = 0;
 };
 
-class magicWeapon : public weapon {
+class MagicArm : public Arm {
 private:
-	float addDamage;
+    float extraPower;
 public:
-	magicWeapon(string tnam, float tdam, float twei, weaponType ttyp, weaponIdc tidc, float tadd)
-		: weapon(tnam, tdam, twei, ttyp, tidc), addDamage(tadd) {};
-	magicWeapon() : magicWeapon("EXCALIBUR", 25.7, 237, weaponType::BOW, weaponIdc::b, 25) {};
-	float getAddDamage();
-	float getDamage();
-	void attack() override;
+    MagicArm(string t, float p, float m, Type ty, Id i, float ep)
+        : Arm(t, p, m, ty, i), extraPower(ep) {};
+    MagicArm() : MagicArm("EXCALIBUR", 25.7, 237, Type::BOW, Id::B, 25) {};
+    float getExtraPower();
+    float getPower();
+    void hit() override;
 };
 
-weapon::~weapon() {
-	cout << "\nTHE WEAPON HAS BEEN OBLITERATED;\n";
+Arm::~Arm() {
+    cout << "\nWEAPON DESTROYED;\n";
 }
 
-class shotWeapon : public weapon {
+class SingleUseArm : public Arm {
 private:
-	bool exists;
+    bool used;
 public:
-	shotWeapon(string tnam = "NON", float tdam = 0, float twei = 0, weaponType ttyp = weaponType::NON, weaponIdc tidc = weaponIdc::a, bool texi = 0) :
-		weapon(tnam, tdam, twei, ttyp, tidc), exists(texi) {};
-	bool getExists();
-	void attack() override;
+    SingleUseArm(string t = "NONE", float p = 0, float m = 0, Type ty = Type::NONE, Id i = Id::A, bool u = false) :
+        Arm(t, p, m, ty, i), used(u) {};
+    bool getUsed();
+    void hit() override;
 };
 
-string weapon::getName() {
-	return name;
+string Arm::getTitle() {
+    return title;
 }
-float weapon::getDamage() {
-	return damage;
+float Arm::getPower() {
+    return power;
 }
-float weapon::getWeight() {
-	return weight;
+float Arm::getMass() {
+    return mass;
 }
-weaponType weapon::getType() {
-	return type;
+Type Arm::getTyp() {
+    return typ;
 }
-weaponIdc weapon::getIdc() {
-	return idc;
+Id Arm::getId() {
+    return id;
 }
-float magicWeapon::getAddDamage() {
-	return magicWeapon::addDamage;
+float MagicArm::getExtraPower() {
+    return MagicArm::extraPower;
 }
-float magicWeapon::getDamage() {
-	return weapon::getDamage() + addDamage;
+float MagicArm::getPower() {
+    return Arm::getPower() + extraPower;
 }
-bool shotWeapon::getExists() {
-	return exists;
+bool SingleUseArm::getUsed() {
+    return used;
 }
 float compare(float dam1, float dam2) {
-	return dam1 > dam2 ? dam1 : dam2;
+    return dam1 > dam2 ? dam1 : dam2;
 }
-void magicWeapon::attack() {
-	cout << "\nАтакуем магическим оружием\n";
+void MagicArm::hit() {
+    cout << "\nMagic attack\n";
 }
-void shotWeapon::attack() {
-	if (getExists() == false) {
-		cout << "Атакуем одноразовым оружием" << endl;
-		this->exists = true;
-	}
-	else {
-		cout << "Оружие уже было использовано" << endl;
-	}
+void SingleUseArm::hit() {
+    if (getUsed() == false) {
+        cout << "Single use attack" << endl;
+        this->used = true;
+    }
+    else {
+        cout << "Already used" << endl;
+    }
 };
 
 
 template <class T>
 
-class weaponHand
+class Hand
 {
 private:
-	T left;
-	T right;
+    T left;
+    T right;
 public:
-	weaponHand(T tleft, T tright) : left(tleft), right(tright) {};
-	T getLeftType()
-	{
-		return left;
-	}
-	T getRightType()
-	{
-		return right;
-	}
-	void setleftType(T type)
-	{
-		left = type;
-	}
-	void setrightType(T type)
-	{
-		right = type;
-	}
+    Hand(T l, T r) : left(l), right(r) {};
+    T getLeft()
+    {
+        return left;
+    }
+    T getRight()
+    {
+        return right;
+    }
+    void setLeft(T t)
+    {
+        left = t;
+    }
+    void setRight(T t)
+    {
+        right = t;
+    }
 };
 
-
-
-
 int main() {
-	setlocale(LC_ALL, "Russian");
+    setlocale(LC_ALL, "Russian");
 
-	magicWeapon b;
-	shotWeapon a;
-	shotWeapon c = {"NON", 12, 200, weaponType::ONEHANDED, weaponIdc::a, 1};
-	b.attack();
-	a.attack();
-	a.attack();
+    MagicArm x;
+    SingleUseArm y;
+    SingleUseArm z = {"NONE", 12, 200, Type::ONEHANDED, Id::A, 1};
+    x.hit();
+    y.hit();
+    y.hit();
 
-	weaponHand<int> h(11, 12);
-	weaponHand<weaponType> t(weaponType::CROSSBOW, weaponType::ONEHANDED);
-	cout << h.getLeftType() << " " << h.getRightType() << endl;
+    Hand<int> h1(11, 12);
+    Hand<Type> h2(Type::CROSSBOW, Type::ONEHANDED);
+    cout << h1.getLeft() << " " << h1.getRight() << endl;
 
-	weaponType d = t.getLeftType();
-	if (d == weaponType::CROSSBOW) {
-		cout << "Тип в левой руке - CROSSBOW" << endl;
-}
+    Type t1 = h2.getLeft();
+    if (t1 == Type::CROSSBOW) {
+        cout << "Type in left hand - CROSSBOW" << endl;
+    }
 }
