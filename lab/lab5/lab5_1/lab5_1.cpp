@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -10,179 +11,106 @@ enum class Category {
     NONE
 };
 
-enum class Identifier {
-    A,
-    B
+struct Player {
+    int id;
+    string login;
+    string password;
+
+    void displayInfo() {
+        cout << "ID: " << id << endl;
+        cout << "Login: " << login << endl;
+        cout << "Password: " << password << endl;
+    }
 };
 
 class Item {
 private:
-    Category category;
-    Identifier identifier;
     string title;
-    float power, mass;
-    
+    float power;
+    float mass;
+    Category category;
 public:
-    Item(string t = "NONE", float p = 0, float m = 0, 
-         Category c = Category::NONE, Identifier i = Identifier::A) {
-        this->title = t;
-        this->power = p;
-        this->mass = m;
-        this->category = c;
-        this->identifier = i;
-        cout << "\nITEM CREATED;\n";
-    }
-
-    ~Item();
-    
-    string getTitle() const;
-    float getMass() const;
-    virtual float getPower() const;
-    
-    bool operator>(const Item& other) const {
-        return this->getPower() > other.getPower();
+    Item(string t, float p, float m, Category c) {
+        title = t;
+        power = p;
+        mass = m;
+        category = c;
     }
     
-    bool operator<(const Item& other) const {
-        return this->getPower() < other.getPower();
-    }
+    Item() : Item("Default", 10, 2, Category::ONEHANDED) {}
     
-    Category getCategory() const;
-    Identifier getIdentifier() const;
+    Category getCategory() const { return category; }
+    string getTitle() const { return title; }
+    float getPower() const { return power; }
+    float getMass() const { return mass; }
+    
     virtual void use() = 0;
+    virtual ~Item() {}
 };
-
 class SpecialItem : public Item {
 private:
     float extraPower;
     
 public:
-    SpecialItem(string t, float p, float m, Category c, 
-                Identifier i, float ep)
-        : Item(t, p, m, c, i), extraPower(ep) {};
+
+    SpecialItem(string t, float p, float m, Category c, float extra)
+        : Item(t, p, m, c), extraPower(extra) {}
     
-    SpecialItem() : SpecialItem("Greatbow", 25.7, 237, 
-                                Category::BOW, Identifier::B, 25) {};
-    
-    float getExtraPower() const;
-    float getPower() const override;
-    void use() override;
-};
+    SpecialItem() : SpecialItem("Magical Sword", 20, 3, Category::ONEHANDED, 10) {}
 
-Item::~Item() {
-    cout << "\nITEM DESTROYED;\n";
-}
+    float getExtraPower() const { return extraPower; }
 
-class SingleUseItem : public Item {
-private:
-    bool used;
-    
-public:
-    SingleUseItem(string t = "NONE", float p = 0, float m = 0, 
-               Category c = Category::NONE, Identifier i = Identifier::A, 
-               bool u = 0) 
-        : Item(t, p, m, c, i), used(u) {};
-    
-    bool isUsed() const;
-    void use() override;
-};
-
-string Item::getTitle() const {
-    return title;
-}
-
-float Item::getPower() const {
-    return power;
-}
-
-float Item::getMass() const {
-    return mass;
-}
-
-Category Item::getCategory() const {
-    return category;
-}
-
-Identifier Item::getIdentifier() const {
-    return identifier;
-}
-
-float SpecialItem::getExtraPower() const {
-    return extraPower;
-}
-
-float SpecialItem::getPower() const {
-    return Item::getPower() + extraPower;
-}
-
-bool SingleUseItem::isUsed() const {
-    return used;
-}
-
-void SpecialItem::use() {
-    cout << "\nSpecial attack\n";
-}
-
-void SingleUseItem::use() {
-    if (isUsed() == false) {
-        cout << "Single use attack" << endl;
-        this->used = true;
+    float getPower() const override {
+        return Item::getPower() + extraPower;
     }
-    else {
-        cout << "Already used" << endl;
+    
+    void use() override {
+        cout << "Using magical item!" << endl;
     }
-}
+};
 
 int main() {
     setlocale(LC_ALL, "Russian");
 
-    SpecialItem item1("Special Sword", 30, 5, Category::ONEHANDED, 
-                   Identifier::A, 15);
+    SpecialItem sword("Fire Sword", 25, 4, Category::ONEHANDED, 15);
+
+    cout << "Item type: ";
+    Category type = sword.getCategory();
     
-    cout << "Item: " << item1.getTitle() << endl;
-    cout << "Base power: " << item1.Item::getPower() << endl;
-    cout << "Extra power: " << item1.getExtraPower() << endl;
-    cout << "Total power: " << item1.getPower() << endl;
-    
-    class TestItem : public Item {
-    public:
-        TestItem(string n, float p) : Item(n, p, 1, Category::ONEHANDED) {}
-        void use() override {}
-    };
-    
-    TestItem item2("Sword", 35);
-    SpecialItem item3("Special Axe", 25, 6, Category::TWOHANDED, 
-                         Identifier::B, 20);
-    
-    cout << "Sword power: " << item2.getPower() << endl;
-    cout << "Special Axe total power: " << item3.getPower() << endl;
-    
-    if (item3 > item2) {
-        cout << item3.getTitle() << " > " << item2.getTitle() 
-             << " (" << item3.getPower() << " > " << item2.getPower() << ")" << endl;
+    if (type == Category::ONEHANDED) {
+        cout << "One-handed weapon" << endl;
+    } else if (type == Category::TWOHANDED) {
+        cout << "Two-handed weapon" << endl;
+    } else if (type == Category::BOW) {
+        cout << "Bow" << endl;
+    } else if (type == Category::CROSSBOW) {
+        cout << "Crossbow" << endl;
     } else {
-        cout << item3.getTitle() << " <= " << item2.getTitle() 
-             << " (" << item3.getPower() << " <= " << item2.getPower() << ")" << endl;
+        cout << "Unknown type" << endl;
     }
     
-    if (item2 < item3) {
-        cout << item2.getTitle() << " < " << item3.getTitle() 
-             << " (" << item2.getPower() << " < " << item3.getPower() << ")" << endl;
-    }
+    cout << "\n=== Testing Player structure ===" << endl;
+    Player player1;
+    player1.id = 1001;
+    player1.login = "warrior123";
+    player1.password = "securePass";
+    player1.displayInfo();
     
-    SpecialItem item4("Staff", 20, 3, Category::TWOHANDED, Identifier::A, 10);
-    TestItem item5("Bow", 28);
+    cout << "\n=== Testing SpecialItem class ===" << endl;
+
+    SpecialItem custom("Ice Staff", 18, 5, Category::TWOHANDED, 12);
+    SpecialItem defaultItem;
     
-    cout << "\nStaff total power: " << item4.getPower() << endl;
-    cout << "Bow power: " << item5.getPower() << endl;
+    cout << "Custom item: " << custom.getTitle() << endl;
+    cout << "Base power: " << custom.Item::getPower() << endl;
+    cout << "Extra power: " << custom.getExtraPower() << endl;
+    cout << "Total power: " << custom.getPower() << endl;
+    cout << "Mass: " << custom.getMass() << endl;
     
-    if (item4 > item5) {
-        cout << "Staff stronger than Bow" << endl;
-    }
-    
-    if (item5 < item4) {
-        cout << "Bow weaker than Staff" << endl;
-    }
+    cout << "\nDefault item: " << defaultItem.getTitle() << endl;
+    cout << "Total power: " << defaultItem.getPower() << endl;
+
+    custom.use();
     
     return 0;
 }
